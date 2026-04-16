@@ -1,6 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
+import { handleCors } from './_cors.js';
 
 export default async function handler(req, res) {
+  const corsResponse = handleCors(req, res, ['GET', 'OPTIONS']);
+  if (corsResponse) return;
+
   // Only allow GET requests
   if (req.method !== 'GET') {
     return res.status(405).json({ error: 'Method not allowed' });

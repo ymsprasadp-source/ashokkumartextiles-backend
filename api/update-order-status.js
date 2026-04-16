@@ -1,10 +1,14 @@
 import { createClient } from '@supabase/supabase-js';
 import { sendOrderEmails } from '../emailService.js';
+import { handleCors } from './_cors.js';
 
 const VALID_STATUSES = ['processing', 'out_for_delivery', 'delivered'];
 const HARDCODED_ADMIN_TOKEN = 'admin-secret-key';
 
 export default async function handler(req, res) {
+  const corsResponse = handleCors(req, res, ['POST', 'OPTIONS']);
+  if (corsResponse) return;
+
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
