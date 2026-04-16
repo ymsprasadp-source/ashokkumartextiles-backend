@@ -18,7 +18,9 @@ app.use(cors({
     'https://ashok-textiles.vercel.app',
     'https://*.vercel.app',
     'https://textiles2.vercel.app',
-    'https://www.ashokkumartextiles.com'
+    'https://www.ashokkumartextiles.com',
+    'https://ashokkumartextiles-frontend.vercel.app',
+    'https://ashokkumartextiles-backend.vercel.app'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
