@@ -1,0 +1,4 @@
+{
+  "ENABLE_LOGGING": false,
+  "LOGGING_PATH": "/tmp/api.log"
+}

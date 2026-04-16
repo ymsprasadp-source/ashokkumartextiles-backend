@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDFC Order Status API Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+        .form-group {
+            margin: 15px 0;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input, button {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            cursor: pointer;
+            margin: 10px 0;
+            font-weight: bold;
+            width: auto;
+            padding: 12px 24px;
+        }
+        button:hover {
+            background: #218838;
+        }
+        .test-result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            background: white;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            border-color: #28a745;
+            background: #d4edda;
+            color: #155724;
+        }
+        .error {
+            border-color: #dc3545;
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .info {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            color: #0d47a1;
+        }
+        .quick-test {
+            display: inline-block;
+            margin: 5px;
+            padding: 8px 16px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .quick-test:hover {
+            background: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 HDFC Order Status API Test</h1>
+        
+        <div class="info test-result">
+            <strong>API Endpoint:</strong> https://textilesbackend.vercel.app/api/hdfc-order-status
+            <strong>Status:</strong> Testing HDFC Order Status API for bank compliance
+            <strong>Expected Response:</strong> JSON with order details, payment status, and customer information
+        </div>
+
+        <div class="test-section">
+            <h3>📝 Custom Order Status Test</h3>
+            <form id="orderStatusForm">
+                <div class="form-group">
+                    <label for="orderId">Order ID</label>
+                    <input type="text" id="orderId" value="AKT57398621XZQW9M" placeholder="Enter order ID">
+                </div>
+                <button type="submit">🔍 Check Order Status</button>
+            </form>
+            <div id="customResult" class="test-result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>⚡ Quick Tests</h3>
+            <p>Test common scenarios:</p>
+            <button class="quick-test" onclick="testOrder('AKT57398621XZQW9M')">✅ Valid Order</button>
+            <button class="quick-test" onclick="testOrder('AKT123456789ABC')">📋 Test Order 1</button>
+            <button class="quick-test" onclick="testOrder('AKT987654321XYZ')">📋 Test Order 2</button>
+            <button class="quick-test" onclick="testOrder('')">❌ Empty Order ID</button>
+            <button class="quick-test" onclick="testOrder('INVALID123')">❌ Invalid Format</button>
+            <div id="quickResult" class="test-result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 API Health Check</h3>
+            <button onclick="testApiHealth()">🏥 Check API Health</button>
+            <div id="healthResult" class="test-result" style="display: none;"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Expected Response Format</h3>
+            <div class="info test-result">
+{
+  "customer_email": "customer@example.com",
+  "customer_phone": "9999999999",
+  "customer_id": "customer@example.com",
+  "status_id": 21,
+  "status": "CHARGED",
+  "id": "ordeh_AKT57398621XZQW9M",
+  "merchant_id": "SG3514",
+  "amount": 10000,
+  "currency": "INR",
+  "order_id": "AKT57398621XZQW9M",
+  "date_created": "2025-09-13T11:30:11.917Z",
+  "return_url": "https://www.ashokkumartextiles.com/payment/success",
+  "payment_links": { ... },
+  "card": { ... }
+}
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://textilesbackend.vercel.app';
+
+        document.getElementById('orderStatusForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const orderId = document.getElementById('orderId').value;
+            await testOrder(orderId, 'customResult');
+        });
+
+        async function testOrder(orderId, resultElementId = 'quickResult') {
+            const resultDiv = document.getElementById(resultElementId);
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'test-result info';
+            resultDiv.textContent = `⏳ Testing order: ${orderId || '(empty)'}...`;
+
+            try {
+                const url = `${API_BASE}/api/hdfc-order-status?order_id=${encodeURIComponent(orderId)}`;
+                console.log('🔗 Testing URL:', url);
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                console.log('📥 Response:', { status: response.status, data });
+
+                if (response.ok) {
+                    resultDiv.className = 'test-result success';
+                    resultDiv.textContent = `✅ Success (${response.status})\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'test-result error';
+                    resultDiv.textContent = `❌ Error (${response.status})\n\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                console.error('💥 Test Error:', error);
+                resultDiv.className = 'test-result error';
+                resultDiv.textContent = `💥 Network Error: ${error.message}`;
+            }
+        }
+
+        async function testApiHealth() {
+            const resultDiv = document.getElementById('healthResult');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'test-result info';
+            resultDiv.textContent = '⏳ Checking API health...';
+
+            try {
+                const response = await fetch(`${API_BASE}/api/health`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    resultDiv.className = 'test-result success';
+                    resultDiv.textContent = `✅ API Health Check Passed\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.className = 'test-result error';
+                    resultDiv.textContent = `❌ Health Check Failed\n\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.className = 'test-result error';
+                resultDiv.textContent = `💥 Health Check Error: ${error.message}`;
+            }
+        }
+
+        // Auto-run health check on page load
+        window.addEventListener('load', () => {
+            console.log('🧪 HDFC Order Status Test Page Loaded');
+            testApiHealth();
+        });
+    </script>
+</body>
+</html>
