@@ -9,23 +9,43 @@ import { sendOrderEmails } from './emailService.js';
 
 const app = express();
 
-// Middleware
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'http://localhost:5173',
-    'http://localhost:5174',
-    'https://ashok-textiles.vercel.app',
-    'https://*.vercel.app',
-    'https://textiles2.vercel.app',
-    'https://www.ashokkumartextiles.com',
-    'https://ashokkumartextiles-frontend.vercel.app',
-    'https://ashokkumartextiles-backend.vercel.app'
-  ],
+// ─── CORS Configuration ────────────────────────────────────────────────────────
+// Allow requests from frontend origins (production & development)
+const allowedOrigins = [
+  // Local development
+  'http://localhost:3000',
+  'http://localhost:5173',
+  'http://localhost:5174',
+  // Production Vercel deployment
+  'https://ashokkumartextiles-frontend.vercel.app',
+  // Alternative/legacy domains
+  'https://ashok-textiles.vercel.app',
+  'https://textiles2.vercel.app',
+  // Custom domain
+  'https://www.ashokkumartextiles.com',
+  'https://ashokkumartextiles.com'
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      console.warn(`⚠️  CORS request blocked from origin: ${origin}`);
+      callback(new Error('CORS not allowed from this origin'));
+    }
+  },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-token']
-}));
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-admin-token', 'Accept'],
+  maxAge: 86400 // Cache preflight for 24 hours
+};
+
+// Middleware
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Initialize Razorpay
